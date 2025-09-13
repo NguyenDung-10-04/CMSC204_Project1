@@ -4,7 +4,6 @@ import exceptions.AccountLockedException;
 import exceptions.PasswordIncorrectException;
 
 import java.util.Objects;
-
 public class UserAccount {
     private String userName;
     private String encryptedPassword;
@@ -66,13 +65,12 @@ public class UserAccount {
         if (locked) {
             throw new AccountLockedException("User " + userName + " is locked");
         }
-        String enc = Utilities.encryptPassword(password); // B1: ma hoa mat khau dang nhap vao
-        // accounts
-        if (!enc.equals((encryptedPassword))) {
+
+        if (!encryptedPassword.equals(password)) {
             incrementFailure();
             if (failureCount >= MAX_FAILURES) {
-                setLocked(true); // setter
-//                lock = true;
+                setLocked(true);
+                locked = true;
             }
             throw new PasswordIncorrectException("Incorrect Password");
         }

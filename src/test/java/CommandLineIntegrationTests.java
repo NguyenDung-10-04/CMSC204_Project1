@@ -1,4 +1,5 @@
-/**
+
+package test.java; /**
  * ----------------------------------------------------------------------
  * File: CommandLineIntegrationTest.java
  * Author: Sandro Fouche
@@ -7,19 +8,25 @@
  * Project: UserAccessManager
  * Institution: Montgomery College
  * Year: 2025
- * @version 1.0 (Fall 2025)
  *
+ * @version 1.0 (Fall 2025)
+ * <p>
  * Description:
- *     CLI-based tests reimplementing public UserAccessManager functionality
- *     using full command-line interaction.
+ * CLI-based tests reimplementing public UserAccessManager functionality
+ * using full command-line interaction.
  * ----------------------------------------------------------------------
  */
 
-import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CommandLineIntegrationTests {
 
@@ -29,7 +36,7 @@ public class CommandLineIntegrationTests {
      */
     private String runCliSession(String fullInput) throws Exception {
         String classpath = System.getProperty("java.class.path");
-        ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, "Main");
+        ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, "src/main/java/org/example/UserAccessManager.java");
         pb.redirectErrorStream(true);
         Process process = pb.start();
 

@@ -24,7 +24,6 @@ public class UserAccessManager {
         if (userName == null || encryptedPassword == null || userName.trim().isEmpty() || encryptedPassword.trim().isEmpty()) {
             throw new InvalidCommandException("Invalid Command");
         }
-
         for (UserAccount acc : accounts) {
             if (acc.getUserName().equals(userName)) {
                 throw new DuplicateUserException("User " + userName + " account already exists");
@@ -38,94 +37,38 @@ public class UserAccessManager {
             throw new InvalidCommandException("Invalid Command");
         }
 
+        // Flag to check if user was removed
+        boolean userFound = false;
+
+        // Loop through accounts to find and remove user
         for (UserAccount acc : accounts) {
             if (acc.getUserName().equals(userName)) {
                 accounts.remove(acc);
-                return; // Find userName automatically return back to the beginning
+                userFound = true;
+                break; // Exit loop once the user is found and removed
             }
+        }
+
+        // If user was not found, throw exception
+        if (!userFound) {
             throw new UserNotFoundException("User " + userName + " not found.");
         }
     }
-// find user confirm method check password
-    // Nhap userName
-    // Nhap password
+
     public boolean verifyAccess(String userName, String encryptedPassword) throws UserNotFoundException, AccountLockedException, InvalidCommandException, PasswordIncorrectException {
         if (userName == null || userName.trim().isEmpty()) {
             throw new InvalidCommandException("Invalid Command");
         }
-
         for (UserAccount acc : accounts) {
-            if (!acc.getUserName().equals(userName)) {
-                throw new UserNotFoundException("User " + userName + " not found");
+            if (acc.getUserName().equals(userName)) {
+                acc.checkPassword(encryptedPassword); // Pass encrypted password directly
+                return true; // Indicate successful verification
             }
-            acc.checkPassword(encryptedPassword);
         }
-        return true;
+        throw new UserNotFoundException("User " + userName + " not found");
     }
 
-    /* public static void main(String[] args) throws FileNotFoundException {
-         Scanner scanner = new Scanner(System.in);
- //        String password1 = "mypassword123";
-
-         UserAccessManager userAccessManager = new UserAccessManager();
-         System.out.println("$ java UserAccessManager\n");
-         System.out.println("User access manager ready.\n");
-         String choice = "";
-         do {
-             System.out.print("User Access Manager> ");
-
-             choice = scanner.next();
-             switch (choice) {
-                 case "load": {
-                     String fileName = scanner.next();
-                     userAccessManager.loadAccounts(fileName);
-                     break;
-                 }
- // load src/entries/accounts.txt
-                 case "add": {
-                     String addName = scanner.nextLine();
-                     System.out.print("Password: ");
-                     String password = scanner.nextLine();
-                     String enc = Utilities.encryptPassword(password);
-                     try {
-                         userAccessManager.addUser(addName, enc);
-                     } catch (InvalidCommandException | DuplicateUserException e) {
-                         System.err.println(e.getMessage());
-                     }
-                     break;
-                 }
-
-                 case "remove": {
-                     String removeName = scanner.next();
-                     try {
-                         userAccessManager.removeUser(removeName);
-                         System.out.println("Remove successfully!");
-                     } catch (UserNotFoundException | InvalidCommandException e) {
-                         System.err.println(e.getMessage());
-                     }
-                     break;
-                 }
-                 case "verify": {
-                     String verifyName = scanner.next();
-                     System.out.println("Password: ");
-                     String password = scanner.next();
-                     String enc = Utilities.encryptPassword(password);
-                     try {
-                         userAccessManager.verifyAccess(verifyName, enc);
-                     } catch (UserNotFoundException | AccountLockedException | InvalidCommandException |
-                              PasswordIncorrectException e) {
-                         System.err.println(e.getMessage());
-                     }
-                     break;
-                 }
-                 default:
-                     System.err.println("Invalid Command");
-             }
-         } while (!choice.equals("exit"));
-
-     }
- }*/
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         UserAccessManager userAccessManager = new UserAccessManager();
 
@@ -149,8 +92,8 @@ public class UserAccessManager {
                 }
 
                 case "add": {
-                    String addName = scanner.next(); // FIXED (was nextLine())
-                    System.out.print("Password: ");  // FIXED (print instead of println)
+                    String addName = scanner.next();
+                    System.out.print("Password: ");
                     String password = scanner.next();
                     String enc = Utilities.encryptPassword(password);
                     try {
@@ -173,11 +116,14 @@ public class UserAccessManager {
 
                 case "verify": {
                     String verifyName = scanner.next();
-                    System.out.print("Password: "); // FIXED
+                    System.out.print("Password: ");
                     String password = scanner.next();
                     String enc = Utilities.encryptPassword(password);
                     try {
-                        userAccessManager.verifyAccess(verifyName, enc);
+                        boolean verified = userAccessManager.verifyAccess(verifyName, enc);
+                        if (verified) {
+                            System.out.println("Access verified");
+                        }
                     } catch (UserNotFoundException | AccountLockedException |
                              InvalidCommandException | PasswordIncorrectException e) {
                         System.out.println(e.getMessage());
@@ -194,6 +140,3 @@ public class UserAccessManager {
         } while (!choice.equals("exit"));
     }
 }
-
-
-
